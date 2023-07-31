@@ -1,9 +1,11 @@
 from flask import Flask,render_template,Blueprint,request, redirect, url_for, session
 import pymysql
 from datetime import timedelta
+from plan import *
 
 app = Flask(__name__)
 
+app.register_blueprint(plan)
 
 @app.route("/")
 def Index():
