@@ -1,10 +1,77 @@
 {%include "header.html"%}
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <title>Weekly Filling Plan</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weeklyplan</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <style>
+        #draggable {
+            width: 20rem;
+            height: 100px;
+            padding: 0.5em;
+            float: left;
+            margin: 0px;
+        }
+
+        #droppable {
+            width: 10%;
+            height: 100rem;
+            padding: 0.5em;
+            float: left;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#draggable").draggable();
+            $("#droppable").droppable({
+                drop: function (event, ui) {
+                    $(this)
+                        .addClass("ui-state-highlight")
+                        .find("p")
+                        .html("Dropped!");
+                }
+            });
+        });
+    </script>
 </head>
+
 <body>
-    
+
+    <div class="container" style="margin: 1px;">
+        <div class="row">
+            <div class="col">
+                <div class="row row-cols-7">
+                    <div class="col">
+                        {%for i in range(7)%}
+                        <div id="droppable" class="ui-widget-header">
+                            <p>Day {{i+1}}</p>
+                        </div>
+                        {%endfor%}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="">
+                    {% for row in sku%}
+                    <div id="draggable" class="ui-widget-content">
+                        <p>{{row.itemCode}} : {{row.itemName}}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+
+</html>
+
 </html>

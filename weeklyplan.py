@@ -3,7 +3,7 @@ from db import *
 import pymysql
 
 
-plan = Blueprint('planfilling',__name__)
+weeklyplan = Blueprint('weeklyplan',__name__)
 
 def server():
     global con
@@ -15,12 +15,12 @@ def server():
                         port=7741,
                         cursorclass=pymysql.cursors.DictCursor)
 
-@plan.route("/planfillingtype")
+
+@weeklyplan.route("/weeklyplan")
 def Main_activity():
         server()
         cur = con.cursor()
         sql = "SELECT * FROM sku"
         cur.execute(sql)
-        test = cur.fetchall()
-        # print(test)
-        return render_template ("htmlfile/plantype.html")
+        sku = cur.fetchall()
+        return render_template ("planpage/weeklyplan.html",sku=sku)

@@ -2,10 +2,12 @@ from flask import Flask,render_template,Blueprint,request, redirect, url_for, se
 import pymysql
 from datetime import timedelta
 from plan import *
+from weeklyplan import *
 
 app = Flask(__name__)
 
 app.register_blueprint(plan)
+app.register_blueprint(weeklyplan)
 
 @app.route("/")
 def Index():
