@@ -10,33 +10,65 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="/resources/demos/style.css">
     <style>
-        #draggable {
-            width: 20rem;
+        .draggable {
+            width: 15rem;
             height: 100px;
             padding: 0.5em;
             float: left;
-            margin: 0px;
+            margin: 0px 0px 10px 0;
+            position: relative;
         }
 
-        #droppable {
-            width: 10%;
-            height: 100rem;
+        .droppable {
+            width: 10rem;
+            height: 500px;
             padding: 0.5em;
             float: left;
-            margin-top: 10px;
+            margin: 1px;
+            z-index: 0;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script>
         $(function () {
-            $("#draggable").draggable();
-            $("#droppable").droppable({
+            // $(".draggable").draggable({
+            //     revert: "valid",
+            //     start: function (event, ui) {
+            //         // Set data when dragging starts
+            //         ui.helper.data("itemData", $(this).find("p").text());
+            //         ui.helper.css("z-index", "9999"); // Set a high z-index during drag
+            //     },
+            //     stop: function (event, ui) {
+            //         ui.helper.css("z-index", "auto"); // Reset z-index after drag stops
+            //     }
+            // });
+            $(".draggable").draggable({
+                revert: "invalid",
+                helper: "clone", // Use a clone as the helper during dragging
+                appendTo: "body", // Append the helper to the body element
+                start: function (event, ui) {
+                    // Set data when dragging starts
+                    const itemData = $(this).find("p").text();
+                    $(ui.helper).data("itemData", itemData);
+                }
+            });
+
+            $(".droppable").droppable({
+                classes: {
+                    "ui-droppable-active": "ui-state-active",
+                    "ui-droppable-hover": "ui-state-hover"
+                },
                 drop: function (event, ui) {
-                    $(this)
-                        .addClass("ui-state-highlight")
-                        .find("p")
-                        .html("Dropped!");
+                    // Get data from the draggable element
+                    const draggedData = $(ui.helper).data("itemData");
+
+                    $(this).addClass("ui-state-highlight").find("p").html("Dropped: " + draggedData);
+                    // Return draggable to start position immediately after drop
+                    ui.helper.animate({
+                        top: 0,
+                        left: 0
+                    }, 200); // Adjust the animation duration as needed
                 }
             });
         });
@@ -45,23 +77,38 @@
 
 <body>
 
-    <div class="container" style="margin: 1px;">
+    <div class="container-fluid" style="margin: 1px;">
+        <br>
+        <div class="btn-group">
+            <form action="{{ url_for('weeklyplan.lookup') }}">
+                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Line Production
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="" name="size" value="1">1/2 L, 1/4 L</a></li>
+                    <li><a class="dropdown-item" href="" name="size" value="2">1 L</a></li>
+                    <li><a class="dropdown-item" href="" name="size" value="3">1.9 L</a></li>
+                    <li><a class="dropdown-item" href="" name="size" value="4">5 L, Tin</a></li>
+                    <li><a class="dropdown-item" href="" name="size" value="5">200 L</a></li>
+                </ul>
+            </form>
+        </div>
+        <br><br>
         <div class="row">
-            <div class="col">
-                <div class="row row-cols-7">
-                    <div class="col">
-                        {%for i in range(7)%}
-                        <div id="droppable" class="ui-widget-header">
-                            <p>Day {{i+1}}</p>
-                        </div>
-                        {%endfor%}
+            <div class="column-day">
+                {%for i in range(7)%}
+                <div class="col">
+                    <div class="ui-widget-header droppable">
+                        <p>Day {{i+1}}</p>
                     </div>
                 </div>
+                {%endfor%}
             </div>
-            <div class="col-sm-1">
-                <div class="">
+            <div class="column-items">
+                <div class="box-container">
                     {% for row in sku%}
-                    <div id="draggable" class="ui-widget-content">
+                    <div class="ui-widget-content draggable">
                         <p>{{row.itemCode}} : {{row.itemName}}</p>
                     </div>
                     {% endfor %}
@@ -69,7 +116,6 @@
             </div>
         </div>
     </div>
-
 </body>
 
 </html>

@@ -16,8 +16,17 @@ def server():
                         cursorclass=pymysql.cursors.DictCursor)
 
 
+@weeklyplan.route('/weeklyplanlookup',methods=['POST'])
+def lookup():
+    if request.method == "POST":
+      prodLine = request.form['size']
+      print(prodLine)
+    print('in')
+
+
+
 @weeklyplan.route("/weeklyplan")
-def Main_activity():
+def Weeklyplan():
         server()
         cur = con.cursor()
         sql = "SELECT * FROM sku"

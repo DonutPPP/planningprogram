@@ -1,3 +1,32 @@
-body{
-    font-family: 'Mali', sans-serif ;
+body {
+    font-family: 'Mali', sans-serif;
+    z-index: 0;
+}
+
+.container {
+    display: flex;
+    align-items: flex-start;
+    /* Align items to the start (top) of the flex container */
+    margin: 1px;
+}
+
+.column-day {
+    flex: 1;
+    /* This will make the first column grow to take available space */
+    min-width: 150px;
+    /* Set a minimum width to prevent it from shrinking too much */
+}
+
+.column-items {
+    flex: 0 0 120px;
+    /* The second column will have a fixed width of 120px */
+}
+
+.box-container {
+    border: 2px solid #ccc;
+    padding: 10px;
+    height: 500px;
+    /* Set a fixed height for the box */
+    overflow-y: auto;
+    /* Add a vertical scrollbar when content overflows */
 }
