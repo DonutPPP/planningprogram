@@ -30,3 +30,8 @@ body {
     overflow-y: auto;
     /* Add a vertical scrollbar when content overflows */
 }
+
+.datedisplay {
+    border: 1px solid #ccc;
+    width: max-content
+}

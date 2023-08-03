@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="/resources/demos/style.css">
     <style>
         .draggable {
-            width: 15rem;
-            height: 100px;
+            width: 18rem;
+            height: 50px;
             padding: 0.5em;
             float: left;
             margin: 0px 0px 10px 0;
@@ -25,7 +25,6 @@
             padding: 0.5em;
             float: left;
             margin: 1px;
-            z-index: 0;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
@@ -72,6 +71,81 @@
                 }
             });
         });
+        // $(document).ready(function () {
+        //     $(".datepicker").datepicker({
+        //         format: 'dd/mm/yyyy',
+        //         todayBtn: 'linked',
+        //         showOtherMonths: true,
+        //         selectOtherMonths: true
+        //     }
+        //     );
+        // });
+        $(function () {
+            var dateFormat = "mm/dd/yy"
+            var dateFormatPy = "yyyy-mm-dd"
+            var today = new Date(); // Get today's date
+
+            from = $("#from")
+                .datepicker({
+                    defaultDate: today,
+                    showOtherMonths: true,
+                    selectOtherMonths: true,
+                    onSelect: function (selectedDate) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/get_selected_date",
+                            data: {
+                                selected_date: selectedDate // Pass the selected date to the server
+                            },
+                            success: function (response) {
+                                console.log(response.message); // Display the server response (if any)
+                            },
+                            error: function (xhr, status, error) {
+                                console.error(error); // Handle any errors that occur during the AJAX request
+                            }
+                        });
+                        // Parse the selected date and calculate the new date that is 7 days ahead
+                        var fromDate = $.datepicker.parseDate(dateFormat, selectedDate);
+                        var toDate = new Date(fromDate.getTime() + 6 * 24 * 60 * 60 * 1000);
+                        var date = $(this).datepicker("getDate");
+                        const formattedDate = $.datepicker.formatDate('dd/mm/yy', date);
+                        // Set the "To Date" datepicker with the new date
+                        to.datepicker("setDate", toDate);
+
+                        // Set the minimum date for the "To Date" datepicker to the selected "From Date"
+                        to.datepicker("option", "minDate", selectedDate);
+                        for (let i = 0; i <= 7; i++) {
+                            const resultDate = new Date(fromDate.getTime() + (i * 24 * 60 * 60 * 1000));
+                            const formattedResultDate = $.datepicker.formatDate('dd/mm/yy', resultDate);
+                            $("#dateselected" + i).text(formattedResultDate)
+                        }
+
+                    }
+                })
+                .on("change", function () {
+                    to.datepicker("option", "minDate", getDate(this));
+
+                }),
+                to = $("#to").datepicker({
+                    defaultDate: "+1w",
+                    showOtherMonths: true,
+                    selectOtherMonths: true
+                })
+                    .on("change", function () {
+                        from.datepicker("option", "maxDate", getDate(this));
+                    });
+
+            function getDate(element) {
+                var date;
+                try {
+                    date = $.datepicker.parseDate(dateFormat, element.value);
+                } catch (error) {
+                    date = null;
+                }
+
+                return date;
+            }
+        });
     </script>
 </head>
 
@@ -80,31 +154,41 @@
     <div class="container-fluid" style="margin: 1px;">
         <br>
         <div class="btn-group">
-            <form action="{{ url_for('weeklyplan.lookup') }}">
+            <form action="{{ url_for('weeklyplan.lookup_size') }}" method="POST">
                 <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                    Line Production
+                    Line Production : {{sku[0]['lineproduction']}}
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="" name="size" value="1">1/2 L, 1/4 L</a></li>
-                    <li><a class="dropdown-item" href="" name="size" value="2">1 L</a></li>
-                    <li><a class="dropdown-item" href="" name="size" value="3">1.9 L</a></li>
-                    <li><a class="dropdown-item" href="" name="size" value="4">5 L, Tin</a></li>
-                    <li><a class="dropdown-item" href="" name="size" value="5">200 L</a></li>
+                    <li><button class="dropdown-item" name="size" value="1">1/2 L, 1/4 L</li>
+                    <li><button class="dropdown-item" name="size" value="2">1 L</li>
+                    <li><button class="dropdown-item" name="size" value="3">1.9 L</li>
+                    <li><button class="dropdown-item" name="size" value="4">5 L, Tin</li>
+                    <li><button class="dropdown-item" name="size" value="5">200 L</li>
                 </ul>
             </form>
         </div>
         <br><br>
+        <div>
+            <label for="from">Date</label>
+            <input type="text" id="from" name="from">
+            <label for="to">to</label>
+            <input type="text" id="to" name="to" disabled>
+
+        </div>
+        <br>
         <div class="row">
+            {%for i in range(7)%}
             <div class="column-day">
-                {%for i in range(7)%}
-                <div class="col">
+                <div class="col" align="center">
+                    <p id="dateselected{{i}}"></p>
                     <div class="ui-widget-header droppable">
-                        <p>Day {{i+1}}</p>
+                        <p></p>
                     </div>
                 </div>
-                {%endfor%}
             </div>
+            {%endfor%}
+
             <div class="column-items">
                 <div class="box-container">
                     {% for row in sku%}
