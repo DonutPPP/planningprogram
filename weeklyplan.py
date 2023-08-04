@@ -18,9 +18,10 @@ def server():
 
 @weeklyplan.route('/weeklyplanlookup',methods=['POST'])
 def lookup_size():
+    selected_date = request.args.get('selected_date')
     if request.method == "POST":
       prodLine = request.form['size']
-    return redirect(url_for('weeklyplan.Weeklyplan',prodLine=prodLine))
+    return redirect(url_for('weeklyplan.Weeklyplan',prodLine=prodLine,selected_date=selected_date))
 
 @weeklyplan.route('/get_selected_date', methods=['POST'])
 def get_selected_date():
@@ -29,14 +30,16 @@ def get_selected_date():
     # Process the selected_date as needed, e.g., store in database or perform some calculation
     # You can also send a response back to the client if necessary
     response_data = {'message': 'Date received successfully!'}
+
     return redirect(url_for('weeklyplan.Weeklyplan',selected_date=dateTimeObj))
 
 @weeklyplan.route("/weeklyplan")
 def Weeklyplan():
+        global productionLinegb
         productionLine = request.args.get('prodLine')
         datestart = request.args.get('selected_date')
         if productionLine is None :
-            productionLine = 1
+            productionLine = productionLinegb
             if datestart is None:
               datestart = '2023-01-01'
               dateTimeObj = datetime.strptime(datestart, "%Y-%m-%d")
@@ -45,20 +48,23 @@ def Weeklyplan():
             datestart = '2023-01-01'
             dateTimeObj = datetime.strptime(datestart, "%Y-%m-%d")
             datestart = dateTimeObj
+
+        productionLinegb = productionLine
         server()
         cur = con.cursor()
         sql = "SELECT * FROM sku WHERE lineproduction =%s"
         cur.execute(sql,(productionLine))
         sku = cur.fetchall()
-        plan = RecordPlan(datestart)
-        return render_template ("planpage/weeklyplan.html",sku=sku)
+        plan = RecordPlan(datestart,productionLine)
+        print(plan)
+        return render_template ("planpage/weeklyplan.html",sku=sku,record_plan=plan)
 
-def RecordPlan(date):
+def RecordPlan(date,productionline):
+      line = productionline
       start_date = date
       server()
       cur = con.cursor()
-      sql = "SELECT * FROM recordplan WHERE lineproduction = 2 AND date_production =%s"
-      cur.execute(sql,(start_date))
+      sql = "SELECT * FROM recordplan WHERE lineproduction =%s AND date_production =%s"
+      cur.execute(sql,(line,start_date))
       plan = cur.fetchall()
-      print(plan)
       return plan

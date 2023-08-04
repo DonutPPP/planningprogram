@@ -30,6 +30,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script>
+        var plan = "{{record_plan | tojson | safe}}";
         $(function () {
             // $(".draggable").draggable({
             //     revert: "valid",
@@ -61,8 +62,11 @@
                 drop: function (event, ui) {
                     // Get data from the draggable element
                     const draggedData = $(ui.helper).data("itemData");
+                    for (let i = 0; i <= plan.length; i++) {
+                        $(this).addClass("ui-state-highlight").find("p").html("Dropped: " + draggedData);
+                        $(this).append("<p>" + plan[1] + "</p>");
+                    }
 
-                    $(this).addClass("ui-state-highlight").find("p").html("Dropped: " + draggedData);
                     // Return draggable to start position immediately after drop
                     ui.helper.animate({
                         top: 0,
